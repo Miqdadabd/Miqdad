@@ -3,145 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jurnal 7A Dark</title>
+    <title>Jurnal 7A Pro Max</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Palette Dark Mode */
-            --bg-body: #121212;
-            --bg-card: #1E1E1E;
-            --bg-input: #2C2C2C;
-            --border: #333333;
-            
-            --text-main: #E0E0E0;
-            --text-muted: #A0A0A0;
-            
-            --primary: #BB86FC; /* Ungu Pastel untuk Aksen Utama */
-            --accent: #03DAC6;  /* Tosca untuk Tombol/Aktif */
-            
-            --success: #00C853; /* Hijau (Ringan/Hadir) */
-            --warning: #FFAB00; /* Kuning (Sedang/Izin) */
-            --danger: #CF6679;  /* Merah Pucat (Berat/Alpha/Sakit) */
+            --bg-body: #121212; --bg-card: #1E1E1E; --bg-input: #2C2C2C;
+            --border: #333333; --text-main: #E0E0E0; --text-muted: #A0A0A0;
+            --primary: #BB86FC; --accent: #03DAC6; --danger: #CF6679;
+            --warning: #FFAB00; --success: #00C853;
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            margin: 0; padding: 0; font-family: 'Inter', sans-serif; 
-            background: var(--bg-body); color: var(--text-main); 
-            padding-bottom: 85px; /* Ruang untuk navbar bawah */
-        }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding-bottom: 85px; }
 
-        /* --- HEADER --- */
-        .header {
-            background: var(--bg-card); padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; z-index: 50;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .header h2 { margin: 0; font-size: 1.2em; color: var(--text-main); }
-        .header p { margin: 0; font-size: 0.8em; color: var(--text-muted); }
+        /* HEADER */
+        .header { background: var(--bg-card); padding: 15px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { margin: 0; font-size: 1.1em; }
+        .header p { margin: 0; font-size: 0.7em; color: var(--text-muted); }
 
-        /* --- GLOBAL COMPONENTS --- */
+        /* SECTIONS */
         .section { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .section.active { display: block; }
-        
-        .card { 
-            background: var(--bg-card); padding: 15px; 
-            border-radius: 12px; border: 1px solid var(--border); 
-            margin-bottom: 15px; 
-        }
+        .card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
 
+        /* INPUTS & BUTTONS */
         label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
-        
-        input, select, textarea {
-            width: 100%; padding: 12px; 
-            background: var(--bg-input); border: 1px solid var(--border); 
-            border-radius: 8px; color: white; font-family: inherit; font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus { 
-            border-color: var(--primary); outline: none; 
-        }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: white; font-family: inherit; font-size: 14px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-success { background: var(--success); color: #000; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
 
-        .btn-main {
-            width: 100%; background: var(--primary); color: #000; 
-            padding: 14px; border: none; border-radius: 10px; 
-            font-weight: 700; font-size: 1em; margin-top: 10px; cursor: pointer;
-        }
-        .btn-main:active { transform: scale(0.98); opacity: 0.9; }
+        /* DASHBOARD */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .stat-box { background: var(--bg-input); padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-val { font-size: 1.5em; font-weight: bold; display: block; }
+        .stat-lbl { font-size: 0.7em; text-transform: uppercase; color: var(--text-muted); }
+        .today-list { list-style: none; padding: 0; margin: 0; }
+        .today-item { padding: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7em; font-weight: bold; color: #000; }
 
-        /* --- DASHBOARD --- */
-        .dashboard-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-        }
-        .mini-stat {
-            background: var(--bg-input); padding: 12px 5px; 
-            border-radius: 10px; text-align: center; border: 1px solid var(--border);
-        }
-        .mini-val { display: block; font-weight: bold; font-size: 1.3em; color: var(--text-main); }
-        .mini-lbl { font-size: 0.65em; color: var(--text-muted); text-transform: uppercase; margin-top: 5px; }
-
-        /* --- ABSENSI ROW --- */
-        .absen-row {
-            padding: 15px 0; border-bottom: 1px solid var(--border);
-        }
-        .absen-top {
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .absen-name { font-size: 0.95em; font-weight: 500; color: var(--text-main); }
+        /* ABSENSI & LISTS */
+        .search-bar { margin-bottom: 15px; }
+        .absen-row { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .absen-top { display: flex; justify-content: space-between; align-items: center; }
+        .absen-opts { display: flex; gap: 5px; }
         
-        .absen-opts { display: flex; gap: 8px; }
-        .opt-lbl {
-            width: 35px; height: 35px; border-radius: 8px; 
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 0.8em; 
-            background: #2A2A2A; color: #555; border: 1px solid #333;
-            cursor: pointer; transition: 0.2s;
-        }
-        
-        /* Radio Logic */
         input[type="radio"] { display: none; }
-        input[value="S"]:checked + .opt-lbl { background: var(--primary); color: black; border-color: var(--primary); }
-        input[value="I"]:checked + .opt-lbl { background: var(--warning); color: black; border-color: var(--warning); }
-        input[value="A"]:checked + .opt-lbl { background: var(--danger); color: black; border-color: var(--danger); }
-        
-        /* Hidden Input Keterangan */
-        .ket-input-box {
-            margin-top: 10px; display: none; /* Sembunyi default */
-        }
-        .ket-input-box input {
-            padding: 8px; font-size: 0.85em; background: #252525; border: 1px solid var(--primary);
-        }
+        .opt-lbl { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8em; background: #2A2A2A; color: #555; cursor: pointer; border: 1px solid #333; }
+        input[value="S"]:checked + .opt-lbl { background: var(--primary); color: black; }
+        input[value="I"]:checked + .opt-lbl { background: var(--warning); color: black; }
+        input[value="A"]:checked + .opt-lbl { background: var(--danger); color: white; }
 
-        /* --- REKAP SISWA (NEW) --- */
-        .student-list-item {
-            padding: 12px; border-bottom: 1px solid var(--border);
-            cursor: pointer; display: flex; justify-content: space-between;
-        }
-        .student-list-item:hover { background: var(--bg-input); }
-        
-        /* Modal Style for Student Detail */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 200; overflow-y: auto;
-            animation: fadeIn 0.2s;
-        }
-        .modal-content {
-            background: var(--bg-card); margin: 20px; padding: 20px; border-radius: 15px; border: 1px solid var(--border);
-        }
-        .close-modal { float: right; font-size: 1.5em; cursor: pointer; color: var(--danger); }
+        /* REPORT TABLE */
+        .recap-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+        .recap-table th { text-align: left; color: var(--text-muted); padding: 8px 4px; border-bottom: 1px solid var(--border); }
+        .recap-table td { padding: 8px 4px; border-bottom: 1px solid #333; }
+        .col-num { width: 30px; text-align: center; }
 
-        /* --- BOTTOM NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; 
-            background: var(--bg-card); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; padding: 12px 0; z-index: 100;
-        }
-        .nav-item { 
-            text-align: center; color: var(--text-muted); 
-            font-size: 0.7em; width: 20%; cursor: pointer; transition: 0.2s;
-        }
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { text-align: center; color: var(--text-muted); font-size: 0.7em; width: 20%; }
         .nav-item.active { color: var(--accent); font-weight: bold; }
-        .nav-icon { font-size: 1.4em; display: block; margin-bottom: 4px; }
+        .nav-icon { font-size: 1.4em; display: block; margin-bottom: 3px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -149,347 +73,375 @@
 <body>
 
     <div class="header">
-        <h2>7A Dashboard</h2>
-        <p>Mode Gelap • Jurnal & Absensi</p>
+        <div>
+            <h2>7A Pro Max</h2>
+            <p id="current-date">...</p>
+        </div>
+        <div style="font-size:0.8em; color:var(--accent);">Professional Ed.</div>
     </div>
 
     <div id="view-home" class="section active">
         <div class="card">
-            <h3 style="margin-top:0; color:var(--accent)">Statistik Bulan Ini</h3>
-            <div class="dashboard-grid">
-                <div class="mini-stat"><span class="mini-val" id="d-s" style="color:var(--primary)">0</span><span class="mini-lbl">Sakit</span></div>
-                <div class="mini-stat"><span class="mini-val" id="d-i" style="color:var(--warning)">0</span><span class="mini-lbl">Izin</span></div>
-                <div class="mini-stat"><span class="mini-val" id="d-a" style="color:var(--danger)">0</span><span class="mini-lbl">Alpha</span></div>
-                <div class="mini-stat"><span class="mini-val" id="d-k" style="color:white">0</span><span class="mini-lbl">Kasus</span></div>
-            </div>
+            <h3 style="margin-top:0; color:var(--accent);">Ketidakhadiran Hari Ini</h3>
+            <div id="today-summary"><p style="text-align:center; color:#666;">Memuat...</p></div>
         </div>
-        <div style="text-align:center; padding:20px; color:var(--text-muted);">
-            <p style="font-size:0.9em;">"Data yang rapi adalah awal dari kedisiplinan."</p>
+        <div class="dashboard-grid">
+            <div class="stat-box"><span class="stat-val" id="total-kasus">0</span><span class="stat-lbl">Total Kasus</span></div>
+            <div class="stat-box"><span class="stat-val" id="total-alpha">0</span><span class="stat-lbl">Total Alpha</span></div>
         </div>
     </div>
 
     <div id="view-absen" class="section">
         <div class="card">
-            <label>Tanggal Absensi</label>
+            <label>Tanggal</label>
             <input type="date" id="absen-tgl">
         </div>
-        
+        <div class="search-bar">
+            <input type="text" id="search-absen" placeholder="🔍 Cari nama siswa..." onkeyup="filterAbsen()">
+        </div>
         <div class="card" style="padding: 0 15px;">
             <div id="list-absen-container"></div>
         </div>
-
-        <button class="btn-main" onclick="simpanAbsen()">Simpan Absensi</button>
-        <p style="text-align:center; font-size:0.75em; color:#666; margin-top:15px;">
-            *Jika pilih S/I/A, kolom keterangan akan muncul otomatis.
-        </p>
+        <button class="btn btn-primary" onclick="simpanAbsen()">💾 Simpan Absensi</button>
     </div>
 
     <div id="view-kasus" class="section">
         <div class="card">
-            <label>Pilih Siswa</label>
-            <select id="kasus-nama"><option value="">-- Nama Siswa --</option></select>
-            
-            <label style="margin-top:15px;">Tanggal Kejadian</label>
+            <label>Siswa</label>
+            <select id="kasus-nama"><option value="">-- Pilih --</option></select>
+            <label style="margin-top:10px;">Tanggal</label>
             <input type="date" id="kasus-tgl">
-            
-            <label style="margin-top:15px;">Tingkat Kasus</label>
+            <label style="margin-top:10px;">Kategori</label>
             <select id="kasus-kat">
-                <option value="Ringan">🟢 Ringan (Atribut/Terlambat)</option>
-                <option value="Sedang">🟠 Sedang (Bolos/Gaduh)</option>
-                <option value="Berat">🔴 Berat (Berkelahi/Bullying)</option>
+                <option value="Ringan">🟢 Ringan</option>
+                <option value="Sedang">🟠 Sedang</option>
+                <option value="Berat">🔴 Berat</option>
             </select>
-            
-            <label style="margin-top:15px;">Kronologi / Keterangan</label>
-            <textarea id="kasus-ket" rows="3" placeholder="Jelaskan detail kejadian..."></textarea>
-            
-            <button class="btn-main" style="background:var(--danger); color:white;" onclick="simpanKasus()">Catat Kasus</button>
+            <label style="margin-top:10px;">Kronologi</label>
+            <textarea id="kasus-ket" rows="3"></textarea>
+            <button class="btn btn-danger" onclick="simpanKasus()">⚠️ Catat Kasus</button>
         </div>
     </div>
 
-    <div id="view-siswa" class="section">
+    <div id="view-laporan" class="section">
         <div class="card">
-            <input type="text" id="cari-siswa" placeholder="🔍 Cari nama siswa..." onkeyup="filterSiswa()">
-            <div id="daftar-siswa-list" style="margin-top:10px;">
-                </div>
-        </div>
-    </div>
-
-    <div id="view-data" class="section">
-        <div class="card" style="text-align:center;">
-            <h3>Export Data</h3>
-            <p style="color:#aaa; font-size:0.9em;">Unduh semua data absensi dan kasus ke dalam format Excel (CSV).</p>
-            <button class="btn-main" onclick="downloadCSV()">⬇ Download Excel</button>
-        </div>
-    </div>
-
-    <div id="studentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <h2 id="modal-name" style="margin-top:0; color:var(--accent);">Nama Siswa</h2>
-            <hr style="border-color:var(--border);">
-            
-            <div class="dashboard-grid" style="margin-bottom:20px;">
-                <div class="mini-stat"><span class="mini-val" id="m-s">0</span><span class="mini-lbl">Sakit</span></div>
-                <div class="mini-stat"><span class="mini-val" id="m-i">0</span><span class="mini-lbl">Izin</span></div>
-                <div class="mini-stat"><span class="mini-val" id="m-a">0</span><span class="mini-lbl">Alpha</span></div>
-                <div class="mini-stat"><span class="mini-val" id="m-k">0</span><span class="mini-lbl">Kasus</span></div>
+            <h3 style="margin-top:0;">Rekap Bulanan</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <input type="month" id="filter-bulan" onchange="renderRekap()">
             </div>
-
-            <h4 style="color:var(--text-muted); margin-bottom:10px;">Riwayat Aktivitas:</h4>
-            <ul id="modal-history" style="list-style:none; padding:0; font-size:0.9em; max-height:200px; overflow-y:auto;">
-                </ul>
+            <div style="overflow-x:auto;">
+                <table class="recap-table">
+                    <thead><tr><th>Nama</th><th class="col-num">S</th><th class="col-num">I</th><th class="col-num">A</th><th class="col-num">K</th></tr></thead>
+                    <tbody id="rekap-body"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-success" onclick="downloadCSV()">⬇ Download Excel (CSV)</button>
         </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Log Data Lengkap</h3>
+            <div style="overflow-x:auto; max-height: 200px;">
+                <table class="recap-table" id="log-table">
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-settings" class="section">
+        <div class="card">
+            <h3 style="margin-top:0;">Kelola Siswa</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="new-student-name" placeholder="Nama Siswa Baru">
+                <button class="btn btn-primary" style="width:auto; margin:0;" onclick="addStudent()">+</button>
+            </div>
+        </div>
+
+        <div class="card" style="border-color: var(--accent);">
+            <h3 style="margin-top:0; color:var(--accent);">Backup & Restore</h3>
+            <p style="font-size:0.8em; color:#ccc;">Amankan data agar tidak hilang saat ganti HP.</p>
+            <button class="btn btn-outline" onclick="backupData()">⬇ Backup Data (Download)</button>
+            <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
+                <label>Restore File:</label>
+                <input type="file" id="file-restore" accept=".json" onchange="restoreData(this)">
+            </div>
+        </div>
+        
+        <button class="btn btn-danger" onclick="resetAllData()">🗑️ RESET SEMUA DATA</button>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item active" onclick="nav('home', this)"><span class="nav-icon">📊</span>Home</div>
         <div class="nav-item" onclick="nav('absen', this)"><span class="nav-icon">📝</span>Absen</div>
         <div class="nav-item" onclick="nav('kasus', this)"><span class="nav-icon">⚠️</span>Kasus</div>
-        <div class="nav-item" onclick="nav('siswa', this)"><span class="nav-icon">👨‍🎓</span>Siswa</div>
-        <div class="nav-item" onclick="nav('data', this)"><span class="nav-icon">💾</span>Data</div>
+        <div class="nav-item" onclick="nav('laporan', this)"><span class="nav-icon">📑</span>Laporan</div>
+        <div class="nav-item" onclick="nav('settings', this)"><span class="nav-icon">⚙️</span>Setelan</div>
     </div>
 
 <script>
-    // --- DATABASE SISWA ---
-    const siswaList = [
-        "Abbas Al Hilaly", "Akcmad Al Fachri", "Al Fath Rizqie Ramadhan", 
-        "Alvino Nazulia Pratama", "Arrahman Zahir Ramadhan", "Azka Tsabitah Akmal", 
-        "Azka Zaidan Abdu Ghani", "Daffa Chandra Putra", "Farhan Azmirrohman", 
-        "Fauzan Indra Tama", "Fitrah Satriaji Wahyudi", "Ikhsanul Aziz", 
-        "Ilham Daffa Syaputra", "Muhamad Ibnu Galih Saifani", "Muhamad Ilham Dwi Saputra", 
-        "Muhammad Altaf Naufal", "Muhammad Azka Mubarak", "Muhammad Firdaus", 
-        "Muhammad Ilram Nurfikriy", "Muhammad Restu Azriel Setiawan", "Muhammad Reyvan Bachri Putra", 
-        "Muhammad Rifqy", "Muhammad Widad Fhasando", "Muhammad Zidan Sangsaka Ramadhani", 
-        "Rakha Hanif Arryyan", "Revan Maulana Yusuf", "Wizra Rais Adlan", 
-        "Yusuf Nur Suriya Hadi", "Zaidan Alfathizi Prasetya", "M. Harun Arrosyid"
+    // DEFAULT DATA
+    const defaultSiswa = [
+        "Abbas Al Hilaly", "Akcmad Al Fachri", "Al Fath Rizqie Ramadhan", "Alvino Nazulia Pratama", 
+        "Arrahman Zahir Ramadhan", "Azka Tsabitah Akmal", "Azka Zaidan Abdu Ghani", "Daffa Chandra Putra", 
+        "Farhan Azmirrohman", "Fauzan Indra Tama", "Fitrah Satriaji Wahyudi", "Ikhsanul Aziz", 
+        "Ilham Daffa Syaputra", "Muhamad Ibnu Galih Saifani", "Muhamad Ilham Dwi Saputra", "Muhammad Altaf Naufal", 
+        "Muhammad Azka Mubarak", "Muhammad Firdaus", "Muhammad Ilram Nurfikriy", "Muhammad Restu Azriel Setiawan", 
+        "Muhammad Reyvan Bachri Putra", "Muhammad Rifqy", "Muhammad Widad Fhasando", "Muhammad Zidan Sangsaka Ramadhani", 
+        "Rakha Hanif Arryyan", "Revan Maulana Yusuf", "Wizra Rais Adlan", "Yusuf Nur Suriya Hadi", 
+        "Zaidan Alfathizi Prasetya", "M. Harun Arrosyid"
     ];
 
+    let siswaList = JSON.parse(localStorage.getItem('db_siswa_7a')) || defaultSiswa;
+
     document.addEventListener('DOMContentLoaded', () => {
+        setupDate();
+        initApp();
+    });
+
+    function setupDate() {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('absen-tgl').value = today;
         document.getElementById('kasus-tgl').value = today;
-
-        initApp();
-        loadStats();
-    });
+        
+        // Default month filter = current month
+        document.getElementById('filter-bulan').value = today.slice(0, 7);
+        
+        const opts = { weekday: 'long', day: 'numeric', month: 'short' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', opts);
+    }
 
     function initApp() {
-        // Init Dropdown Kasus
-        const sel = document.getElementById('kasus-nama');
-        const listDiv = document.getElementById('daftar-siswa-list');
-        const absenDiv = document.getElementById('list-absen-container');
+        renderAbsenList();
+        renderDropdown();
+        updateDashboard();
+        renderRekap();
+        renderLog();
+    }
 
-        siswaList.forEach((s, i) => {
-            // Dropdown
-            sel.innerHTML += `<option value="${s}">${s}</option>`;
-
-            // List Rekap Siswa
-            listDiv.innerHTML += `
-                <div class="student-list-item" onclick="openStudentDetail('${s}')">
-                    <span>${i+1}. ${s}</span>
-                    <span style="color:var(--text-muted)">></span>
-                </div>
-            `;
-
-            // List Absensi Generator
-            absenDiv.innerHTML += `
-            <div class="absen-row">
+    // --- ABSENSI ---
+    function renderAbsenList() {
+        const container = document.getElementById('list-absen-container');
+        container.innerHTML = '';
+        siswaList.sort().forEach((nama, i) => {
+            container.innerHTML += `
+            <div class="absen-row" data-name="${nama.toLowerCase()}">
                 <div class="absen-top">
-                    <span class="absen-name">${i+1}. ${s}</span>
+                    <span style="font-size:0.9em;">${i+1}. ${nama}</span>
                     <div class="absen-opts">
                         <input type="radio" name="abs_${i}" value="H" checked id="h_${i}" onchange="toggleKet(${i})">
-                        
-                        <label>
-                            <input type="radio" name="abs_${i}" value="S" onchange="toggleKet(${i})">
-                            <span class="opt-lbl">S</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="abs_${i}" value="I" onchange="toggleKet(${i})">
-                            <span class="opt-lbl">I</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="abs_${i}" value="A" onchange="toggleKet(${i})">
-                            <span class="opt-lbl">A</span>
-                        </label>
-                        <div onclick="resetAbsen(${i})" style="display:flex; align-items:center; padding:0 8px; color:#555; font-size:1.2em;">↺</div>
+                        <label><input type="radio" name="abs_${i}" value="S" onchange="toggleKet(${i})"><span class="opt-lbl">S</span></label>
+                        <label><input type="radio" name="abs_${i}" value="I" onchange="toggleKet(${i})"><span class="opt-lbl">I</span></label>
+                        <label><input type="radio" name="abs_${i}" value="A" onchange="toggleKet(${i})"><span class="opt-lbl">A</span></label>
                     </div>
                 </div>
-                <div class="ket-input-box" id="ket-box-${i}">
-                    <input type="text" id="ket-val-${i}" placeholder="Keterangan (Cth: Sakit Demam / Izin Keluarga)">
-                </div>
+                <input type="text" id="ket_${i}" placeholder="Keterangan..." style="display:none; padding:8px; font-size:0.8em; margin-top:5px;">
             </div>`;
         });
     }
 
-    // --- LOGIC ABSENSI ---
-    window.toggleKet = function(index) {
-        const status = document.querySelector(`input[name="abs_${index}"]:checked`).value;
-        const box = document.getElementById(`ket-box-${index}`);
-        // Jika status bukan H, tampilkan kotak keterangan
-        if(status !== 'H') {
-            box.style.display = 'block';
-        } else {
-            box.style.display = 'none';
-            document.getElementById(`ket-val-${index}`).value = ''; // Reset teks
-        }
+    window.toggleKet = function(i) {
+        const val = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+        const input = document.getElementById(`ket_${i}`);
+        input.style.display = (val === 'H') ? 'none' : 'block';
+        if(val === 'H') input.value = '';
     }
 
-    window.resetAbsen = function(index) {
-        document.getElementById(`h_${index}`).checked = true;
-        toggleKet(index);
+    window.filterAbsen = function() {
+        const term = document.getElementById('search-absen').value.toLowerCase();
+        document.querySelectorAll('.absen-row').forEach(row => {
+            row.style.display = row.dataset.name.includes(term) ? 'flex' : 'none';
+        });
     }
 
     window.simpanAbsen = function() {
         const tgl = document.getElementById('absen-tgl').value;
         let db = JSON.parse(localStorage.getItem('db_absen')) || [];
         let count = 0;
-
         siswaList.forEach((nama, i) => {
-            const val = document.querySelector(`input[name="abs_${i}"]:checked`).value;
-            const ket = document.getElementById(`ket-val-${i}`).value;
-            
-            if(val !== 'H') {
-                db.push({ 
-                    id: Date.now()+i, 
-                    date: tgl, 
-                    name: nama, 
-                    type: val,
-                    desc: ket || '-' // Simpan keterangan
-                });
+            const status = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+            const ket = document.getElementById(`ket_${i}`).value;
+            if(status !== 'H') {
+                db.push({ id: Date.now()+i, date: tgl, name: nama, type: status, desc: ket });
                 count++;
             }
         });
-        
         localStorage.setItem('db_absen', JSON.stringify(db));
-        alert(count + " data tersimpan.");
-        
-        // Reset UI
-        siswaList.forEach((_, i) => resetAbsen(i));
+        alert(count + " Data tersimpan.");
+        renderAbsenList(); updateDashboard(); renderRekap(); renderLog();
     }
 
-    // --- LOGIC KASUS ---
+    // --- KASUS ---
+    function renderDropdown() {
+        const sel = document.getElementById('kasus-nama');
+        sel.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        siswaList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+    }
+
     window.simpanKasus = function() {
         const n = document.getElementById('kasus-nama').value;
         const d = document.getElementById('kasus-tgl').value;
         const k = document.getElementById('kasus-kat').value;
-        const desc = document.getElementById('kasus-ket').value;
-        
-        if(!n || !desc) return alert("Lengkapi nama dan keterangan!");
+        const ket = document.getElementById('kasus-ket').value;
+        if(!n || !ket) return alert("Lengkapi data!");
         
         let db = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        db.push({ id: Date.now(), date: d, name: n, cat: k, desc: desc });
+        db.push({ id: Date.now(), date: d, name: n, type: 'KASUS', cat: k, desc: ket });
         localStorage.setItem('db_kasus', JSON.stringify(db));
-        
-        alert("Kasus tercatat.");
+        alert("Kasus dicatat.");
         document.getElementById('kasus-ket').value = '';
+        updateDashboard(); renderRekap(); renderLog();
     }
 
-    // --- REKAP PER ANAK (SISWA) ---
-    window.openStudentDetail = function(nama) {
-        document.getElementById('studentModal').style.display = 'block';
-        document.getElementById('modal-name').innerText = nama;
+    // --- DASHBOARD ---
+    function updateDashboard() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        const today = new Date().toISOString().split('T')[0];
 
-        const abs = JSON.parse(localStorage.getItem('db_absen')) || [];
-        const kas = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        document.getElementById('total-kasus').innerText = kasus.length;
+        document.getElementById('total-alpha').innerText = absen.filter(x => x.type === 'A').length;
 
-        // Filter data anak ini
-        const myAbs = abs.filter(x => x.name === nama);
-        const myKas = kas.filter(x => x.name === nama);
-
-        // Hitung Statistik
-        document.getElementById('m-s').innerText = myAbs.filter(x => x.type === 'S').length;
-        document.getElementById('m-i').innerText = myAbs.filter(x => x.type === 'I').length;
-        document.getElementById('m-a').innerText = myAbs.filter(x => x.type === 'A').length;
-        document.getElementById('m-k').innerText = myKas.length;
-
-        // Render Riwayat di Modal
-        const list = document.getElementById('modal-history');
-        list.innerHTML = '';
-        
-        // Gabung data & sort
-        let combined = [
-            ...myAbs.map(x => ({...x, category: 'Absen'})), 
-            ...myKas.map(x => ({...x, category: 'Kasus'}))
-        ];
-        combined.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-        if(combined.length === 0) {
-            list.innerHTML = '<li style="color:#555; text-align:center;">Tidak ada catatan.</li>';
-        } else {
-            combined.forEach(item => {
-                let color = '#777';
-                let label = '';
-                
-                if(item.category === 'Absen') {
-                    if(item.type === 'S') { color = 'var(--primary)'; label = 'SAKIT'; }
-                    else if(item.type === 'I') { color = 'var(--warning)'; label = 'IZIN'; }
-                    else { color = 'var(--danger)'; label = 'ALPHA'; }
-                } else {
-                    color = 'white'; label = 'KASUS (' + item.cat + ')';
-                }
-
-                list.innerHTML += `
-                    <li style="padding:10px 0; border-bottom:1px solid #333;">
-                        <div style="display:flex; justify-content:space-between;">
-                            <span style="color:${color}; font-weight:bold;">${label}</span>
-                            <span style="font-size:0.8em; color:#888;">${item.date}</span>
-                        </div>
-                        <div style="color:#ccc; margin-top:4px;">${item.desc}</div>
-                    </li>
-                `;
+        const todayAbsen = absen.filter(x => x.date === today);
+        const listDiv = document.getElementById('today-summary');
+        if(todayAbsen.length === 0) listDiv.innerHTML = '<p style="text-align:center; color:#00C853; font-size:0.9em;">Semua Hadir! 🎉</p>';
+        else {
+            listDiv.innerHTML = '<ul class="today-list">';
+            todayAbsen.forEach(x => {
+                let color = x.type === 'S' ? '#BB86FC' : (x.type === 'I' ? '#FFAB00' : '#CF6679');
+                listDiv.innerHTML += `<li class="today-item"><span>${x.name}</span><span class="badge" style="background:${color}">${x.type}</span></li>`;
             });
+            listDiv.innerHTML += '</ul>';
         }
     }
 
-    window.closeModal = function() {
-        document.getElementById('studentModal').style.display = 'none';
-    }
-
-    window.filterSiswa = function() {
-        const input = document.getElementById('cari-siswa').value.toUpperCase();
-        const items = document.getElementsByClassName('student-list-item');
+    // --- LAPORAN & REKAP (PROFESSIONAL FEATURE) ---
+    window.renderRekap = function() {
+        const bulan = document.getElementById('filter-bulan').value; // YYYY-MM
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
         
-        for (let i = 0; i < items.length; i++) {
-            const txt = items[i].textContent || items[i].innerText;
-            if (txt.toUpperCase().indexOf(input) > -1) {
-                items[i].style.display = "";
-            } else {
-                items[i].style.display = "none";
+        const tbody = document.getElementById('rekap-body');
+        tbody.innerHTML = '';
+
+        siswaList.forEach(nama => {
+            // Filter by month and name
+            const myAbsen = absen.filter(x => x.name === nama && x.date.startsWith(bulan));
+            const myKasus = kasus.filter(x => x.name === nama && x.date.startsWith(bulan));
+
+            const s = myAbsen.filter(x => x.type === 'S').length;
+            const i = myAbsen.filter(x => x.type === 'I').length;
+            const a = myAbsen.filter(x => x.type === 'A').length;
+            const k = myKasus.length;
+
+            if(s>0 || i>0 || a>0 || k>0) {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${nama}</td>
+                    <td class="col-num" style="color:var(--primary)">${s}</td>
+                    <td class="col-num" style="color:var(--warning)">${i}</td>
+                    <td class="col-num" style="color:var(--danger)">${a}</td>
+                    <td class="col-num" style="font-weight:bold; color:#fff">${k}</td>
+                </tr>`;
             }
-        }
+        });
+        
+        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Data bulan ini kosong.</td></tr>';
     }
 
-    // --- NAVIGATION & GLOBAL ---
+    function renderLog() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        let all = [...absen, ...kasus].sort((a,b) => new Date(b.date) - new Date(a.date));
+        
+        const table = document.getElementById('log-table');
+        table.innerHTML = '';
+        all.forEach(x => {
+            let label = x.type === 'KASUS' ? '⚠️' : x.type;
+            table.innerHTML += `
+            <tr>
+                <td style="width:70px; font-size:0.7em; color:#888;">${x.date}</td>
+                <td>${x.name}<br><span style="font-size:0.7em; color:#aaa;">${x.desc}</span></td>
+                <td style="text-align:right; font-weight:bold;">${label}</td>
+                <td style="width:30px; text-align:center;"><span onclick="delItem(${x.id}, '${x.type}')" style="color:red; cursor:pointer;">×</span></td>
+            </tr>`;
+        });
+    }
+
+    window.delItem = function(id, type) {
+        if(!confirm("Hapus?")) return;
+        let key = type === 'KASUS' ? 'db_kasus' : 'db_absen';
+        let db = JSON.parse(localStorage.getItem(key)) || [];
+        db = db.filter(x => x.id !== id);
+        localStorage.setItem(key, JSON.stringify(db));
+        renderLog(); renderRekap(); updateDashboard();
+    }
+
+    // --- SETTINGS & BACKUP (CRITICAL) ---
+    window.addStudent = function() {
+        const name = document.getElementById('new-student-name').value;
+        if(!name) return;
+        siswaList.push(name); siswaList.sort();
+        localStorage.setItem('db_siswa_7a', JSON.stringify(siswaList));
+        alert("Siswa ditambahkan."); location.reload();
+    }
+
+    window.backupData = function() {
+        const data = {
+            siswa: JSON.parse(localStorage.getItem('db_siswa_7a')),
+            absen: JSON.parse(localStorage.getItem('db_absen')),
+            kasus: JSON.parse(localStorage.getItem('db_kasus'))
+        };
+        const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "BACKUP_JURNAL_7A_" + new Date().toISOString().split('T')[0] + ".json";
+        a.click();
+    }
+
+    window.restoreData = function(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.siswa) localStorage.setItem('db_siswa_7a', JSON.stringify(data.siswa));
+                if(data.absen) localStorage.setItem('db_absen', JSON.stringify(data.absen));
+                if(data.kasus) localStorage.setItem('db_kasus', JSON.stringify(data.kasus));
+                alert("Data berhasil dikembalikan! Halaman akan dimuat ulang.");
+                location.reload();
+            } catch(err) {
+                alert("File rusak atau salah format.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    window.resetAllData = function() {
+        if(prompt("Ketik RESET untuk menghapus semua data semester ini:") === "RESET") {
+            localStorage.removeItem('db_absen');
+            localStorage.removeItem('db_kasus');
+            alert("Bersih!"); location.reload();
+        }
+    }
+    
+    window.downloadCSV = function() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        let csv = "TANGGAL,NAMA,TIPE,KETERANGAN\n";
+        absen.forEach(x => csv += `${x.date},${x.name},${x.type},"${x.desc}"\n`);
+        kasus.forEach(x => csv += `${x.date},${x.name},KASUS-${x.cat},"${x.desc}"\n`);
+        const a = document.createElement("a");
+        a.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+        a.download = "Laporan_Jurnal_7A.csv";
+        a.click();
+    }
+
     window.nav = function(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
-        if(id === 'home') loadStats();
-    }
-
-    function loadStats() {
-        const abs = JSON.parse(localStorage.getItem('db_absen')) || [];
-        const kas = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        
-        document.getElementById('d-s').innerText = abs.filter(x=>x.type==='S').length;
-        document.getElementById('d-i').innerText = abs.filter(x=>x.type==='I').length;
-        document.getElementById('d-a').innerText = abs.filter(x=>x.type==='A').length;
-        document.getElementById('d-k').innerText = kas.length;
-    }
-
-    window.downloadCSV = function() {
-        const abs = JSON.parse(localStorage.getItem('db_absen')) || [];
-        const kas = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        let csv = "TANGGAL,NAMA,TIPE,KETERANGAN\n";
-        
-        abs.forEach(x => csv += `${x.date},${x.name},${x.type},"${x.desc}"\n`);
-        kas.forEach(x => csv += `${x.date},${x.name},KASUS-${x.cat},"${x.desc}"\n`);
-        
-        const link = document.createElement("a");
-        link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-        link.download = "Rekap_Jurnal_Dark.csv";
-        link.click();
     }
 </script>
 </body>
