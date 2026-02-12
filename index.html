@@ -1,9 +1,4 @@
-Tentu, ini adalah permintaan yang sangat penting untuk administrasi guru. Saat mengisi rapot, kita butuh data "Total Satu Semester" dan daftarnya harus Urut Absen (Semua Siswa), supaya tinggal salin ke buku rapot tanpa loncat-loncat.
-Di update ini, saya merombak menu Laporan:
- * Mode Semester (Raportan): Menghitung total seluruh data yang ada (tidak dipotong per bulan).
- * Tampil Semua Siswa: Semua nama (Abbas s.d. Zaidan) akan muncul berurutan, meskipun nilainya 0. Ini biar enak nyalinnya.
- * Tampilan Tabel Rapi: Angka '0' dibuat samar, angka yang ada isinya dibuat tebal.
-Silakan Timpa (Replace) seluruh kode di file index.html dengan versi final ini:
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -379,7 +374,7 @@ Silakan Timpa (Replace) seluruh kode di file index.html dengan versi final ini:
         updateDashboard(); renderRekap(); renderLog();
     }
 
-    // --- LAPORAN & REKAP (MODE RAPORTAN) ---
+    // --- LAPORAN & REKAP (MODE RAPORT) ---
     window.toggleFilterMode = function() {
         const mode = document.getElementById('filter-mode').value;
         const divBulan = document.getElementById('div-filter-bulan');
@@ -548,10 +543,3 @@ Silakan Timpa (Replace) seluruh kode di file index.html dengan versi final ini:
 </body>
 </html>
 
-Cara Menggunakan Mode Raportan:
- * Buka menu Laporan.
- * Di bagian atas, ganti "Mode" dari Per Bulan menjadi Total Semester (Raportan).
- * Tabel otomatis akan menampilkan SEMUA SISWA (1-30) urut abjad.
- * Angka S/I/A yang kosong (0) akan berwarna abu-abu samar, sedangkan yang ada isinya (misal: 1, 2, 5) akan berwarna cerah.
- * Tinggal salin ke buku rapot dengan nyaman karena urutannya pasti sama dengan buku induk.
- * Klik tombol Download Excel (Raportan) untuk dapat file Excel-nya.
