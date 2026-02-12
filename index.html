@@ -1,19 +1,24 @@
+Tentu, ini adalah permintaan yang sangat penting untuk administrasi guru. Saat mengisi rapot, kita butuh data "Total Satu Semester" dan daftarnya harus Urut Absen (Semua Siswa), supaya tinggal salin ke buku rapot tanpa loncat-loncat.
+Di update ini, saya merombak menu Laporan:
+ * Mode Semester (Raportan): Menghitung total seluruh data yang ada (tidak dipotong per bulan).
+ * Tampil Semua Siswa: Semua nama (Abbas s.d. Zaidan) akan muncul berurutan, meskipun nilainya 0. Ini biar enak nyalinnya.
+ * Tampilan Tabel Rapi: Angka '0' dibuat samar, angka yang ada isinya dibuat tebal.
+Silakan Timpa (Replace) seluruh kode di file index.html dengan versi final ini:
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jurnal 7A Pro Max</title>
+    <title>Jurnal 7A Raportan</title>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#BB86FC">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    <meta name="theme-color" content="#BB86FC">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-body: #121212; --bg-card: #1E1E1E; --bg-input: #2C2C2C;
             --border: #333333; --text-main: #E0E0E0; --text-muted: #A0A0A0;
             --primary: #BB86FC; --accent: #03DAC6; --danger: #CF6679;
-            --warning: #FFAB00; --success: #00C853;
+            --warning: #FFAB00; --success: #00C853; --info: #2979FF;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding-bottom: 85px; }
@@ -26,7 +31,7 @@
         /* SECTIONS */
         .section { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .section.active { display: block; }
-        .card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; position: relative; }
 
         /* INPUTS & BUTTONS */
         label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
@@ -62,7 +67,8 @@
         .recap-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
         .recap-table th { text-align: left; color: var(--text-muted); padding: 8px 4px; border-bottom: 1px solid var(--border); }
         .recap-table td { padding: 8px 4px; border-bottom: 1px solid #333; }
-        .col-num { width: 30px; text-align: center; }
+        .col-num { width: 35px; text-align: center; font-weight: bold; }
+        .zero-val { color: #444; font-weight: normal; } /* Warna samar untuk nilai 0 */
 
         /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
@@ -77,20 +83,31 @@
 
     <div class="header">
         <div>
-            <h2>DASHBOARD 7A</h2>
+            <h2>7A Admin</h2>
             <p id="current-date">...</p>
         </div>
-        <div style="font-size:0.8em; color:var(--accent);">Miqdad Abdussalam</div>
+        <div onclick="initApp()" style="font-size:1.2em; cursor:pointer;">🔄</div>
     </div>
 
     <div id="view-home" class="section active">
-        <div class="card">
-            <h3 style="margin-top:0; color:var(--accent);">Ketidakhadiran Hari Ini</h3>
-            <div id="today-summary"><p style="text-align:center; color:#666;">Memuat...</p></div>
+        <div class="card" style="border-left: 5px solid var(--accent);">
+            <h3 style="margin-top:0; color:var(--text-main);">Absensi Hari Ini</h3>
+            <div id="today-summary"></div>
+            <div style="margin-top:10px;">
+                <button class="btn btn-primary" style="margin:0; font-size:0.8em; width:auto;" onclick="nav('absen', document.querySelectorAll('.nav-item')[1])">📝 Isi Absen</button>
+            </div>
         </div>
+
+        <div class="card" style="border-left: 5px solid var(--info);">
+            <h3 style="margin-top:0;">📅 Jadwal Panggil</h3>
+            <ul id="schedule-container" class="today-list"></ul>
+        </div>
+
         <div class="dashboard-grid">
-            <div class="stat-box"><span class="stat-val" id="total-kasus">0</span><span class="stat-lbl">Total Kasus</span></div>
-            <div class="stat-box"><span class="stat-val" id="total-alpha">0</span><span class="stat-lbl">Total Alpha</span></div>
+            <div class="stat-box"><span class="stat-val" id="total-sakit" style="color:var(--primary)">0</span><span class="stat-lbl">Sakit</span></div>
+            <div class="stat-box"><span class="stat-val" id="total-izin" style="color:var(--warning)">0</span><span class="stat-lbl">Izin</span></div>
+            <div class="stat-box"><span class="stat-val" id="total-alpha" style="color:var(--danger)">0</span><span class="stat-lbl">Alpha</span></div>
+            <div class="stat-box"><span class="stat-val" id="total-kasus" style="color:white">0</span><span class="stat-lbl">Kasus</span></div>
         </div>
     </div>
 
@@ -112,40 +129,66 @@
         <div class="card">
             <label>Siswa</label>
             <select id="kasus-nama"><option value="">-- Pilih --</option></select>
-            <label style="margin-top:10px;">Tanggal</label>
+            <label style="margin-top:10px;">Tanggal Kejadian</label>
             <input type="date" id="kasus-tgl">
             <label style="margin-top:10px;">Kategori</label>
             <select id="kasus-kat">
-                <option value="Ringan">🟢 Ringan</option>
-                <option value="Sedang">🟠 Sedang</option>
-                <option value="Berat">🔴 Berat</option>
+                <option value="Ringan">🟢 Ringan (Atribut/Terlambat)</option>
+                <option value="Sedang">🟠 Sedang (Bolos/Gaduh)</option>
+                <option value="Berat">🔴 Berat (Narkoba/Bullying)</option>
             </select>
-            <label style="margin-top:10px;">Kronologi</label>
+            <div style="background:var(--bg-input); padding:10px; border-radius:8px; margin-top:15px; border:1px solid var(--info);">
+                <label style="color:var(--info);">📅 Target Panggil (Opsional)</label>
+                <input type="date" id="kasus-deadline" style="border-color:var(--info);">
+            </div>
+            <label style="margin-top:15px;">Kronologi</label>
             <textarea id="kasus-ket" rows="3"></textarea>
             <button class="btn btn-danger" onclick="simpanKasus()">⚠️ Catat Kasus</button>
         </div>
     </div>
 
     <div id="view-laporan" class="section">
-        <div class="card">
-            <h3 style="margin-top:0;">Rekap Bulanan</h3>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <input type="month" id="filter-bulan" onchange="renderRekap()">
+         <div class="card">
+            <h3 style="margin-top:0;">Rekap Data Siswa</h3>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px; background:var(--bg-input); padding:10px; border-radius:8px;">
+                <div style="flex:1;">
+                    <label>Mode:</label>
+                    <select id="filter-mode" onchange="toggleFilterMode()">
+                        <option value="bulan">🗓️ Per Bulan</option>
+                        <option value="semester">📚 Total Semester (Raportan)</option>
+                    </select>
+                </div>
+                <div style="flex:1;" id="div-filter-bulan">
+                    <label>Bulan:</label>
+                    <input type="month" id="filter-bulan" onchange="renderRekap()">
+                </div>
             </div>
+
             <div style="overflow-x:auto;">
                 <table class="recap-table">
-                    <thead><tr><th>Nama</th><th class="col-num">S</th><th class="col-num">I</th><th class="col-num">A</th><th class="col-num">K</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th style="width:20px;">No</th>
+                            <th>Nama</th>
+                            <th class="col-num">S</th>
+                            <th class="col-num">I</th>
+                            <th class="col-num">A</th>
+                            <th class="col-num">K</th>
+                        </tr>
+                    </thead>
                     <tbody id="rekap-body"></tbody>
                 </table>
             </div>
-            <button class="btn btn-success" onclick="downloadCSV()">⬇ Download Excel (CSV)</button>
+            <div style="margin-top:15px; text-align:right;">
+                <button class="btn btn-success" style="width:auto; font-size:0.8em;" onclick="downloadCSV()">⬇ Excel (Raportan)</button>
+            </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0;">Log Data Lengkap</h3>
-            <div style="overflow-x:auto; max-height: 200px;">
-                <table class="recap-table" id="log-table">
-                    </table>
+            <h3 style="margin-top:0;">Log Data Masuk</h3>
+            <div style="overflow-x:auto; max-height: 250px;">
+                <table class="recap-table" id="log-table"></table>
             </div>
         </div>
     </div>
@@ -158,17 +201,14 @@
                 <button class="btn btn-primary" style="width:auto; margin:0;" onclick="addStudent()">+</button>
             </div>
         </div>
-
         <div class="card" style="border-color: var(--accent);">
             <h3 style="margin-top:0; color:var(--accent);">Backup & Restore</h3>
-            <p style="font-size:0.8em; color:#ccc;">Amankan data agar tidak hilang saat ganti HP.</p>
-            <button class="btn btn-outline" onclick="backupData()">⬇ Backup Data (Download)</button>
+            <button class="btn btn-outline" onclick="backupData()">⬇ Backup Data</button>
             <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
                 <label>Restore File:</label>
                 <input type="file" id="file-restore" accept=".json" onchange="restoreData(this)">
             </div>
         </div>
-        
         <button class="btn btn-danger" onclick="resetAllData()">🗑️ RESET SEMUA DATA</button>
     </div>
 
@@ -181,7 +221,6 @@
     </div>
 
 <script>
-    // DEFAULT DATA
     const defaultSiswa = [
         "Abbas Al Hilaly", "Akcmad Al Fachri", "Al Fath Rizqie Ramadhan", "Alvino Nazulia Pratama", 
         "Arrahman Zahir Ramadhan", "Azka Tsabitah Akmal", "Azka Zaidan Abdu Ghani", "Daffa Chandra Putra", 
@@ -198,15 +237,14 @@
     document.addEventListener('DOMContentLoaded', () => {
         setupDate();
         initApp();
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
     });
 
     function setupDate() {
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('absen-tgl').value = today;
-        document.getElementById('kasus-tgl').value = today;
-        
-        // Default month filter = current month
-        document.getElementById('filter-bulan').value = today.slice(0, 7);
+        if(document.getElementById('absen-tgl')) document.getElementById('absen-tgl').value = today;
+        if(document.getElementById('kasus-tgl')) document.getElementById('kasus-tgl').value = today;
+        if(document.getElementById('filter-bulan')) document.getElementById('filter-bulan').value = today.slice(0, 7);
         
         const opts = { weekday: 'long', day: 'numeric', month: 'short' };
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', opts);
@@ -220,9 +258,55 @@
         renderLog();
     }
 
-    // --- ABSENSI ---
+    // --- DASHBOARD ---
+    function updateDashboard() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        document.getElementById('total-sakit').innerText = absen.filter(x => x.type === 'S').length;
+        document.getElementById('total-izin').innerText = absen.filter(x => x.type === 'I').length;
+        document.getElementById('total-alpha').innerText = absen.filter(x => x.type === 'A').length;
+        document.getElementById('total-kasus').innerText = kasus.length;
+
+        const todayAbsen = absen.filter(x => x.date === today);
+        const listDiv = document.getElementById('today-summary');
+        
+        if(todayAbsen.length === 0) {
+            listDiv.innerHTML = '<p style="text-align:center; color:#00C853; font-weight:bold; font-size:0.9em;">Semua Hadir!</p>';
+        } else {
+            let html = '<ul class="today-list">';
+            todayAbsen.forEach(x => {
+                let color = x.type === 'S' ? '#BB86FC' : (x.type === 'I' ? '#FFAB00' : '#CF6679');
+                html += `<li class="today-item"><span>${x.name} <br><small style="color:#888">${x.desc}</small></span><span class="badge" style="background:${color}">${x.type}</span></li>`;
+            });
+            html += '</ul>';
+            listDiv.innerHTML = html;
+        }
+
+        const scheduleUl = document.getElementById('schedule-container');
+        scheduleUl.innerHTML = '';
+        const jadwal = kasus.filter(x => x.deadline && x.deadline !== "").sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+
+        if(jadwal.length > 0) {
+            jadwal.forEach(x => {
+                const d = new Date(x.deadline);
+                const tglStr = d.getDate() + '/' + (d.getMonth()+1);
+                scheduleUl.innerHTML += `
+                <li class="today-item" style="border-left:3px solid var(--info); padding-left:10px;">
+                    <div><span style="font-weight:bold; display:block;">${x.name}</span><small style="color:#888;">Kasus: ${x.cat}</small></div>
+                    <div style="text-align:right;"><span class="badge" style="background:var(--info); color:white;">${tglStr}</span></div>
+                </li>`;
+            });
+        } else {
+            scheduleUl.innerHTML = '<li style="text-align:center; padding:10px; color:#666; font-size:0.8em;">Tidak ada jadwal panggil.</li>';
+        }
+    }
+
+    // --- ABSEN & KASUS ---
     function renderAbsenList() {
         const container = document.getElementById('list-absen-container');
+        if(!container) return;
         container.innerHTML = '';
         siswaList.sort().forEach((nama, i) => {
             container.innerHTML += `
@@ -250,9 +334,7 @@
 
     window.filterAbsen = function() {
         const term = document.getElementById('search-absen').value.toLowerCase();
-        document.querySelectorAll('.absen-row').forEach(row => {
-            row.style.display = row.dataset.name.includes(term) ? 'flex' : 'none';
-        });
+        document.querySelectorAll('.absen-row').forEach(row => { row.style.display = row.dataset.name.includes(term) ? 'flex' : 'none'; });
     }
 
     window.simpanAbsen = function() {
@@ -272,9 +354,9 @@
         renderAbsenList(); updateDashboard(); renderRekap(); renderLog();
     }
 
-    // --- KASUS ---
     function renderDropdown() {
         const sel = document.getElementById('kasus-nama');
+        if(!sel) return;
         sel.innerHTML = '<option value="">-- Pilih Siswa --</option>';
         siswaList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
     }
@@ -284,85 +366,85 @@
         const d = document.getElementById('kasus-tgl').value;
         const k = document.getElementById('kasus-kat').value;
         const ket = document.getElementById('kasus-ket').value;
+        const deadline = document.getElementById('kasus-deadline').value;
+
         if(!n || !ket) return alert("Lengkapi data!");
         
         let db = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        db.push({ id: Date.now(), date: d, name: n, type: 'KASUS', cat: k, desc: ket });
+        db.push({ id: Date.now(), date: d, name: n, type: 'KASUS', cat: k, desc: ket, deadline: deadline });
         localStorage.setItem('db_kasus', JSON.stringify(db));
         alert("Kasus dicatat.");
         document.getElementById('kasus-ket').value = '';
+        document.getElementById('kasus-deadline').value = '';
         updateDashboard(); renderRekap(); renderLog();
     }
 
-    // --- DASHBOARD ---
-    function updateDashboard() {
-        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
-        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        const today = new Date().toISOString().split('T')[0];
-
-        document.getElementById('total-kasus').innerText = kasus.length;
-        document.getElementById('total-alpha').innerText = absen.filter(x => x.type === 'A').length;
-
-        const todayAbsen = absen.filter(x => x.date === today);
-        const listDiv = document.getElementById('today-summary');
-        if(todayAbsen.length === 0) listDiv.innerHTML = '<p style="text-align:center; color:#00C853; font-size:0.9em;">Semua Hadir! 🎉</p>';
-        else {
-            listDiv.innerHTML = '<ul class="today-list">';
-            todayAbsen.forEach(x => {
-                let color = x.type === 'S' ? '#BB86FC' : (x.type === 'I' ? '#FFAB00' : '#CF6679');
-                listDiv.innerHTML += `<li class="today-item"><span>${x.name}</span><span class="badge" style="background:${color}">${x.type}</span></li>`;
-            });
-            listDiv.innerHTML += '</ul>';
+    // --- LAPORAN & REKAP (MODE RAPORTAN) ---
+    window.toggleFilterMode = function() {
+        const mode = document.getElementById('filter-mode').value;
+        const divBulan = document.getElementById('div-filter-bulan');
+        if(mode === 'semester') {
+            divBulan.style.display = 'none';
+        } else {
+            divBulan.style.display = 'block';
         }
+        renderRekap();
     }
 
-    // --- LAPORAN & REKAP (PROFESSIONAL FEATURE) ---
     window.renderRekap = function() {
-        const bulan = document.getElementById('filter-bulan').value; // YYYY-MM
+        const mode = document.getElementById('filter-mode').value;
+        const bulan = document.getElementById('filter-bulan').value;
         const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
         const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        
         const tbody = document.getElementById('rekap-body');
         tbody.innerHTML = '';
 
-        siswaList.forEach(nama => {
-            // Filter by month and name
-            const myAbsen = absen.filter(x => x.name === nama && x.date.startsWith(bulan));
-            const myKasus = kasus.filter(x => x.name === nama && x.date.startsWith(bulan));
+        siswaList.sort().forEach((nama, idx) => {
+            let myAbsen = absen.filter(x => x.name === nama);
+            let myKasus = kasus.filter(x => x.name === nama);
+
+            // Filter Jika Mode Bulan
+            if(mode === 'bulan') {
+                myAbsen = myAbsen.filter(x => x.date.startsWith(bulan));
+                myKasus = myKasus.filter(x => x.date.startsWith(bulan));
+            }
 
             const s = myAbsen.filter(x => x.type === 'S').length;
             const i = myAbsen.filter(x => x.type === 'I').length;
             const a = myAbsen.filter(x => x.type === 'A').length;
             const k = myKasus.length;
 
-            if(s>0 || i>0 || a>0 || k>0) {
-                tbody.innerHTML += `
-                <tr>
-                    <td>${nama}</td>
-                    <td class="col-num" style="color:var(--primary)">${s}</td>
-                    <td class="col-num" style="color:var(--warning)">${i}</td>
-                    <td class="col-num" style="color:var(--danger)">${a}</td>
-                    <td class="col-num" style="font-weight:bold; color:#fff">${k}</td>
-                </tr>`;
-            }
+            // WARNA: Jika 0 warnanya samar, jika >0 warnanya sesuai kategori
+            const sStyle = s > 0 ? 'color:var(--primary)' : 'class="zero-val"';
+            const iStyle = i > 0 ? 'color:var(--warning)' : 'class="zero-val"';
+            const aStyle = a > 0 ? 'color:var(--danger)' : 'class="zero-val"';
+            const kStyle = k > 0 ? 'color:#fff; font-weight:bold;' : 'class="zero-val"';
+
+            tbody.innerHTML += `
+            <tr>
+                <td style="color:#666;">${idx+1}</td>
+                <td>${nama}</td>
+                <td class="col-num" ${sStyle}>${s}</td>
+                <td class="col-num" ${iStyle}>${i}</td>
+                <td class="col-num" ${aStyle}>${a}</td>
+                <td class="col-num" ${kStyle}>${k}</td>
+            </tr>`;
         });
-        
-        if(tbody.innerHTML === '') tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#666;">Data bulan ini kosong.</td></tr>';
     }
 
     function renderLog() {
         const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
         const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
         let all = [...absen, ...kasus].sort((a,b) => new Date(b.date) - new Date(a.date));
-        
         const table = document.getElementById('log-table');
         table.innerHTML = '';
         all.forEach(x => {
             let label = x.type === 'KASUS' ? '⚠️' : x.type;
+            let extra = x.deadline ? `<br><small style="color:var(--info)">Target: ${x.deadline}</small>` : '';
             table.innerHTML += `
             <tr>
                 <td style="width:70px; font-size:0.7em; color:#888;">${x.date}</td>
-                <td>${x.name}<br><span style="font-size:0.7em; color:#aaa;">${x.desc}</span></td>
+                <td>${x.name}<br><span style="font-size:0.7em; color:#aaa;">${x.desc}</span>${extra}</td>
                 <td style="text-align:right; font-weight:bold;">${label}</td>
                 <td style="width:30px; text-align:center;"><span onclick="delItem(${x.id}, '${x.type}')" style="color:red; cursor:pointer;">×</span></td>
             </tr>`;
@@ -378,7 +460,7 @@
         renderLog(); renderRekap(); updateDashboard();
     }
 
-    // --- SETTINGS & BACKUP (CRITICAL) ---
+    // --- SYSTEM ---
     window.addStudent = function() {
         const name = document.getElementById('new-student-name').value;
         if(!name) return;
@@ -394,10 +476,9 @@
             kasus: JSON.parse(localStorage.getItem('db_kasus'))
         };
         const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = "BACKUP_JURNAL_7A_" + new Date().toISOString().split('T')[0] + ".json";
+        a.href = URL.createObjectURL(blob);
+        a.download = "BACKUP_7A_" + new Date().toISOString().split('T')[0] + ".json";
         a.click();
     }
 
@@ -411,32 +492,47 @@
                 if(data.siswa) localStorage.setItem('db_siswa_7a', JSON.stringify(data.siswa));
                 if(data.absen) localStorage.setItem('db_absen', JSON.stringify(data.absen));
                 if(data.kasus) localStorage.setItem('db_kasus', JSON.stringify(data.kasus));
-                alert("Data berhasil dikembalikan! Halaman akan dimuat ulang.");
-                location.reload();
-            } catch(err) {
-                alert("File rusak atau salah format.");
-            }
+                alert("Data berhasil dikembalikan!"); location.reload();
+            } catch(err) { alert("File rusak."); }
         };
         reader.readAsText(file);
     }
 
     window.resetAllData = function() {
-        if(prompt("Ketik RESET untuk menghapus semua data semester ini:") === "RESET") {
-            localStorage.removeItem('db_absen');
-            localStorage.removeItem('db_kasus');
+        if(prompt("Ketik RESET untuk hapus data semester ini:") === "RESET") {
+            localStorage.removeItem('db_absen'); localStorage.removeItem('db_kasus');
             alert("Bersih!"); location.reload();
         }
     }
     
     window.downloadCSV = function() {
+        const mode = document.getElementById('filter-mode').value;
+        const bulan = document.getElementById('filter-bulan').value;
         const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
         const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
-        let csv = "TANGGAL,NAMA,TIPE,KETERANGAN\n";
-        absen.forEach(x => csv += `${x.date},${x.name},${x.type},"${x.desc}"\n`);
-        kasus.forEach(x => csv += `${x.date},${x.name},KASUS-${x.cat},"${x.desc}"\n`);
+        
+        let csv = "NO,NAMA,SAKIT,IZIN,ALPHA,KASUS\n";
+        
+        siswaList.sort().forEach((nama, idx) => {
+            let myAbsen = absen.filter(x => x.name === nama);
+            let myKasus = kasus.filter(x => x.name === nama);
+
+            if(mode === 'bulan') {
+                myAbsen = myAbsen.filter(x => x.date.startsWith(bulan));
+                myKasus = myKasus.filter(x => x.date.startsWith(bulan));
+            }
+
+            const s = myAbsen.filter(x => x.type === 'S').length;
+            const i = myAbsen.filter(x => x.type === 'I').length;
+            const a = myAbsen.filter(x => x.type === 'A').length;
+            const k = myKasus.length;
+
+            csv += `${idx+1},"${nama}",${s},${i},${a},${k}\n`;
+        });
+
         const a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-        a.download = "Laporan_Jurnal_7A.csv";
+        a.download = "Rekap_Raportan_7A.csv";
         a.click();
     }
 
@@ -445,16 +541,17 @@
         document.getElementById('view-'+id).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
+        if(id === 'home') updateDashboard();
+        if(id === 'laporan') renderRekap();
     }
-</script>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker: Registered (Scope: ', reg.scope, ')'))
-        .catch(err => console.log('Service Worker: Error: ', err));
-    });
-  }
 </script>
 </body>
 </html>
+
+Cara Menggunakan Mode Raportan:
+ * Buka menu Laporan.
+ * Di bagian atas, ganti "Mode" dari Per Bulan menjadi Total Semester (Raportan).
+ * Tabel otomatis akan menampilkan SEMUA SISWA (1-30) urut abjad.
+ * Angka S/I/A yang kosong (0) akan berwarna abu-abu samar, sedangkan yang ada isinya (misal: 1, 2, 5) akan berwarna cerah.
+ * Tinggal salin ke buku rapot dengan nyaman karena urutannya pasti sama dengan buku induk.
+ * Klik tombol Download Excel (Raportan) untuk dapat file Excel-nya.
