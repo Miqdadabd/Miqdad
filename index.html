@@ -195,4 +195,360 @@
                 <button class="btn btn-primary" style="width:auto; margin:0;" onclick="addStudent()">+</button>
             </div>
         </div>
-        <div class
+        <div class="card" style="border-color: var(--accent);">
+            <h3 style="margin-top:0; color:var(--accent);">Backup & Restore</h3>
+            <button class="btn btn-outline" onclick="backupData()">⬇ Backup Data</button>
+            <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
+                <label>Restore File:</label>
+                <input type="file" id="file-restore" accept=".json" onchange="restoreData(this)">
+            </div>
+        </div>
+        <button class="btn btn-danger" onclick="resetAllData()">🗑️ RESET SEMUA DATA</button>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="nav('home', this)"><span class="nav-icon">📊</span>Home</div>
+        <div class="nav-item" onclick="nav('absen', this)"><span class="nav-icon">📝</span>Absen</div>
+        <div class="nav-item" onclick="nav('kasus', this)"><span class="nav-icon">⚠️</span>Kasus</div>
+        <div class="nav-item" onclick="nav('laporan', this)"><span class="nav-icon">📑</span>Laporan</div>
+        <div class="nav-item" onclick="nav('settings', this)"><span class="nav-icon">⚙️</span>Setelan</div>
+    </div>
+
+<script>
+    const defaultSiswa = [
+        "Abbas Al Hilaly", "Akcmad Al Fachri", "Al Fath Rizqie Ramadhan", "Alvino Nazulia Pratama", 
+        "Arrahman Zahir Ramadhan", "Azka Tsabitah Akmal", "Azka Zaidan Abdu Ghani", "Daffa Chandra Putra", 
+        "Farhan Azmirrohman", "Fauzan Indra Tama", "Fitrah Satriaji Wahyudi", "Ikhsanul Aziz", 
+        "Ilham Daffa Syaputra", "Muhamad Ibnu Galih Saifani", "Muhamad Ilham Dwi Saputra", "Muhammad Altaf Naufal", 
+        "Muhammad Azka Mubarak", "Muhammad Firdaus", "Muhammad Ilram Nurfikriy", "Muhammad Restu Azriel Setiawan", 
+        "Muhammad Reyvan Bachri Putra", "Muhammad Rifqy", "Muhammad Widad Fhasando", "Muhammad Zidan Sangsaka Ramadhani", 
+        "Rakha Hanif Arryyan", "Revan Maulana Yusuf", "Wizra Rais Adlan", "Yusuf Nur Suriya Hadi", 
+        "Zaidan Alfathizi Prasetya", "M. Harun Arrosyid"
+    ];
+
+    let siswaList = JSON.parse(localStorage.getItem('db_siswa_7a')) || defaultSiswa;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupDate();
+        initApp();
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
+    });
+
+    function setupDate() {
+        const today = new Date().toISOString().split('T')[0];
+        if(document.getElementById('absen-tgl')) document.getElementById('absen-tgl').value = today;
+        if(document.getElementById('kasus-tgl')) document.getElementById('kasus-tgl').value = today;
+        if(document.getElementById('filter-bulan')) document.getElementById('filter-bulan').value = today.slice(0, 7);
+        
+        const opts = { weekday: 'long', day: 'numeric', month: 'short' };
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', opts);
+    }
+
+    function initApp() {
+        renderAbsenList();
+        renderDropdown();
+        updateDashboard();
+        renderRekap();
+        renderLog();
+    }
+
+    // --- DASHBOARD (HARI INI SAJA) ---
+    function updateDashboard() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        // Filter Data HARI INI
+        const todayAbsen = absen.filter(x => x.date === today);
+        const todayKasus = kasus.filter(x => x.date === today);
+
+        // Update Angka Statistik (Hanya Hari Ini)
+        document.getElementById('today-sakit').innerText = todayAbsen.filter(x => x.type === 'S').length;
+        document.getElementById('today-izin').innerText = todayAbsen.filter(x => x.type === 'I').length;
+        document.getElementById('today-alpha').innerText = todayAbsen.filter(x => x.type === 'A').length;
+        document.getElementById('today-kasus').innerText = todayKasus.length;
+
+        // Tampilkan List Siapa Saja yang Absen Hari Ini
+        const listDiv = document.getElementById('today-summary');
+        
+        if(todayAbsen.length === 0 && todayKasus.length === 0) {
+            listDiv.innerHTML = '<p style="text-align:center; color:#00C853; font-weight:bold; font-size:0.9em;">Belum ada data masuk hari ini.</p>';
+        } else {
+            let html = '<ul class="today-list">';
+            todayAbsen.forEach(x => {
+                let color = x.type === 'S' ? '#BB86FC' : (x.type === 'I' ? '#FFAB00' : '#CF6679');
+                html += `<li class="today-item"><span>${x.name} <br><small style="color:#888">${x.desc}</small></span><span class="badge" style="background:${color}">${x.type}</span></li>`;
+            });
+            todayKasus.forEach(x => {
+                html += `<li class="today-item"><span>${x.name} <br><small style="color:#888">${x.cat}</small></span><span class="badge" style="background:#fff; color:#000">KASUS</span></li>`;
+            });
+            html += '</ul>';
+            listDiv.innerHTML = html;
+        }
+
+        // Schedule
+        const scheduleUl = document.getElementById('schedule-container');
+        scheduleUl.innerHTML = '';
+        const jadwal = kasus.filter(x => x.deadline && x.deadline !== "").sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+
+        if(jadwal.length > 0) {
+            jadwal.forEach(x => {
+                const d = new Date(x.deadline);
+                const tglStr = d.getDate() + '/' + (d.getMonth()+1);
+                scheduleUl.innerHTML += `
+                <li class="today-item" style="border-left:3px solid var(--info); padding-left:10px;">
+                    <div><span style="font-weight:bold; display:block;">${x.name}</span><small style="color:#888;">Kasus: ${x.cat}</small></div>
+                    <div style="text-align:right;"><span class="badge" style="background:var(--info); color:white;">${tglStr}</span></div>
+                </li>`;
+            });
+        } else {
+            scheduleUl.innerHTML = '<li style="text-align:center; padding:10px; color:#666; font-size:0.8em;">Tidak ada jadwal panggil.</li>';
+        }
+    }
+
+    // --- ABSEN & KASUS ---
+    function renderAbsenList() {
+        const container = document.getElementById('list-absen-container');
+        if(!container) return;
+        container.innerHTML = '';
+        siswaList.sort().forEach((nama, i) => {
+            container.innerHTML += `
+            <div class="absen-row" data-name="${nama.toLowerCase()}">
+                <div class="absen-top">
+                    <span style="font-size:0.9em;">${i+1}. ${nama}</span>
+                    <div class="absen-opts">
+                        <input type="radio" name="abs_${i}" value="H" checked id="h_${i}" onchange="toggleKet(${i})">
+                        <label><input type="radio" name="abs_${i}" value="S" onchange="toggleKet(${i})"><span class="opt-lbl">S</span></label>
+                        <label><input type="radio" name="abs_${i}" value="I" onchange="toggleKet(${i})"><span class="opt-lbl">I</span></label>
+                        <label><input type="radio" name="abs_${i}" value="A" onchange="toggleKet(${i})"><span class="opt-lbl">A</span></label>
+                    </div>
+                </div>
+                <input type="text" id="ket_${i}" placeholder="Keterangan..." style="display:none; padding:8px; font-size:0.8em; margin-top:5px;">
+            </div>`;
+        });
+    }
+
+    window.toggleKet = function(i) {
+        const val = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+        const input = document.getElementById(`ket_${i}`);
+        input.style.display = (val === 'H') ? 'none' : 'block';
+        if(val === 'H') input.value = '';
+    }
+
+    window.filterAbsen = function() {
+        const term = document.getElementById('search-absen').value.toLowerCase();
+        document.querySelectorAll('.absen-row').forEach(row => { row.style.display = row.dataset.name.includes(term) ? 'flex' : 'none'; });
+    }
+
+    window.simpanAbsen = function() {
+        const tgl = document.getElementById('absen-tgl').value;
+        let db = JSON.parse(localStorage.getItem('db_absen')) || [];
+        let count = 0;
+        siswaList.forEach((nama, i) => {
+            const status = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+            const ket = document.getElementById(`ket_${i}`).value;
+            if(status !== 'H') {
+                db.push({ id: Date.now()+i, date: tgl, name: nama, type: status, desc: ket });
+                count++;
+            }
+        });
+        localStorage.setItem('db_absen', JSON.stringify(db));
+        alert(count + " Data tersimpan.");
+        renderAbsenList(); updateDashboard(); renderRekap(); renderLog();
+    }
+
+    function renderDropdown() {
+        const sel = document.getElementById('kasus-nama');
+        if(!sel) return;
+        sel.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        siswaList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+    }
+
+    window.simpanKasus = function() {
+        const n = document.getElementById('kasus-nama').value;
+        const d = document.getElementById('kasus-tgl').value;
+        const k = document.getElementById('kasus-kat').value;
+        const ket = document.getElementById('kasus-ket').value;
+        const deadline = document.getElementById('kasus-deadline').value;
+
+        if(!n || !ket) return alert("Lengkapi data!");
+        
+        let db = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        db.push({ id: Date.now(), date: d, name: n, type: 'KASUS', cat: k, desc: ket, deadline: deadline });
+        localStorage.setItem('db_kasus', JSON.stringify(db));
+        alert("Kasus dicatat.");
+        document.getElementById('kasus-ket').value = '';
+        document.getElementById('kasus-deadline').value = '';
+        updateDashboard(); renderRekap(); renderLog();
+    }
+
+    // --- LAPORAN & REKAP ---
+    window.toggleFilterMode = function() {
+        const mode = document.getElementById('filter-mode').value;
+        const divBulan = document.getElementById('div-filter-bulan');
+        const btn = document.querySelector('#view-laporan .btn-success');
+        
+        if(mode === 'semester') {
+            divBulan.style.display = 'none';
+            btn.innerText = "⬇ Excel (Rekap Semester)";
+        } else {
+            divBulan.style.display = 'block';
+            btn.innerText = "⬇ Excel (Laporan Bulanan)";
+        }
+        renderRekap();
+    }
+
+    window.renderRekap = function() {
+        const mode = document.getElementById('filter-mode').value;
+        const bulan = document.getElementById('filter-bulan').value;
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        const tbody = document.getElementById('rekap-body');
+        tbody.innerHTML = '';
+
+        siswaList.sort().forEach((nama, idx) => {
+            let myAbsen = absen.filter(x => x.name === nama);
+            let myKasus = kasus.filter(x => x.name === nama);
+
+            if(mode === 'bulan') {
+                myAbsen = myAbsen.filter(x => x.date.startsWith(bulan));
+                myKasus = myKasus.filter(x => x.date.startsWith(bulan));
+            }
+
+            const s = myAbsen.filter(x => x.type === 'S').length;
+            const i = myAbsen.filter(x => x.type === 'I').length;
+            const a = myAbsen.filter(x => x.type === 'A').length;
+            const k = myKasus.length;
+
+            const sStyle = s > 0 ? 'color:var(--primary)' : 'class="zero-val"';
+            const iStyle = i > 0 ? 'color:var(--warning)' : 'class="zero-val"';
+            const aStyle = a > 0 ? 'color:var(--danger)' : 'class="zero-val"';
+            const kStyle = k > 0 ? 'color:#fff; font-weight:bold;' : 'class="zero-val"';
+
+            tbody.innerHTML += `
+            <tr>
+                <td style="color:#666;">${idx+1}</td>
+                <td>${nama}</td>
+                <td class="col-num" ${sStyle}>${s}</td>
+                <td class="col-num" ${iStyle}>${i}</td>
+                <td class="col-num" ${aStyle}>${a}</td>
+                <td class="col-num" ${kStyle}>${k}</td>
+            </tr>`;
+        });
+    }
+
+    function renderLog() {
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        let all = [...absen, ...kasus].sort((a,b) => new Date(b.date) - new Date(a.date));
+        const table = document.getElementById('log-table');
+        table.innerHTML = '';
+        all.forEach(x => {
+            let label = x.type === 'KASUS' ? '⚠️' : x.type;
+            let extra = x.deadline ? `<br><small style="color:var(--info)">Target: ${x.deadline}</small>` : '';
+            table.innerHTML += `
+            <tr>
+                <td style="width:70px; font-size:0.7em; color:#888;">${x.date}</td>
+                <td>${x.name}<br><span style="font-size:0.7em; color:#aaa;">${x.desc}</span>${extra}</td>
+                <td style="text-align:right; font-weight:bold;">${label}</td>
+                <td style="width:30px; text-align:center;"><span onclick="delItem(${x.id}, '${x.type}')" style="color:red; cursor:pointer;">×</span></td>
+            </tr>`;
+        });
+    }
+
+    window.delItem = function(id, type) {
+        if(!confirm("Hapus?")) return;
+        let key = type === 'KASUS' ? 'db_kasus' : 'db_absen';
+        let db = JSON.parse(localStorage.getItem(key)) || [];
+        db = db.filter(x => x.id !== id);
+        localStorage.setItem(key, JSON.stringify(db));
+        renderLog(); renderRekap(); updateDashboard();
+    }
+
+    // --- SYSTEM ---
+    window.addStudent = function() {
+        const name = document.getElementById('new-student-name').value;
+        if(!name) return;
+        siswaList.push(name); siswaList.sort();
+        localStorage.setItem('db_siswa_7a', JSON.stringify(siswaList));
+        alert("Siswa ditambahkan."); location.reload();
+    }
+
+    window.backupData = function() {
+        const data = {
+            siswa: JSON.parse(localStorage.getItem('db_siswa_7a')),
+            absen: JSON.parse(localStorage.getItem('db_absen')),
+            kasus: JSON.parse(localStorage.getItem('db_kasus'))
+        };
+        const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "BACKUP_7A_" + new Date().toISOString().split('T')[0] + ".json";
+        a.click();
+    }
+
+    window.restoreData = function(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.siswa) localStorage.setItem('db_siswa_7a', JSON.stringify(data.siswa));
+                if(data.absen) localStorage.setItem('db_absen', JSON.stringify(data.absen));
+                if(data.kasus) localStorage.setItem('db_kasus', JSON.stringify(data.kasus));
+                alert("Data berhasil dikembalikan!"); location.reload();
+            } catch(err) { alert("File rusak."); }
+        };
+        reader.readAsText(file);
+    }
+
+    window.resetAllData = function() {
+        if(prompt("Ketik RESET untuk hapus data semester ini:") === "RESET") {
+            localStorage.removeItem('db_absen'); localStorage.removeItem('db_kasus');
+            alert("Bersih!"); location.reload();
+        }
+    }
+    
+    window.downloadCSV = function() {
+        const mode = document.getElementById('filter-mode').value;
+        const bulan = document.getElementById('filter-bulan').value;
+        const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
+        const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        
+        let csv = "NO,NAMA,SAKIT,IZIN,ALPHA,KASUS\n";
+        
+        siswaList.sort().forEach((nama, idx) => {
+            let myAbsen = absen.filter(x => x.name === nama);
+            let myKasus = kasus.filter(x => x.name === nama);
+
+            if(mode === 'bulan') {
+                myAbsen = myAbsen.filter(x => x.date.startsWith(bulan));
+                myKasus = myKasus.filter(x => x.date.startsWith(bulan));
+            }
+
+            const s = myAbsen.filter(x => x.type === 'S').length;
+            const i = myAbsen.filter(x => x.type === 'I').length;
+            const a = myAbsen.filter(x => x.type === 'A').length;
+            const k = myKasus.length;
+
+            csv += `${idx+1},"${nama}",${s},${i},${a},${k}\n`;
+        });
+
+        const a = document.createElement("a");
+        a.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+        a.download = "Rekap_Semester_7A.csv";
+        a.click();
+    }
+
+    window.nav = function(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('view-'+id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if(id === 'home') updateDashboard();
+        if(id === 'laporan') renderRekap();
+    }
+</script>
+</body>
+</html>
