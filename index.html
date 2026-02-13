@@ -182,7 +182,7 @@
                 </table>
             </div>
             <div style="margin-top:15px; text-align:right;">
-                <button class="btn btn-success" style="width:auto; font-size:0.8em;" onclick="downloadCSV()">⬇ Excel (Format Rapi)</button>
+                <button class="btn btn-success" style="width:auto; font-size:0.8em;" onclick="downloadCSV()">⬇ Spreadsheet (Format Rapi)</button>
             </div>
         </div>
 
@@ -388,8 +388,12 @@
         const mode = document.getElementById('filter-mode').value;
         const divBulan = document.getElementById('div-filter-bulan');
         const btn = document.querySelector('#view-laporan .btn-success');
+        
         divBulan.style.display = (mode === 'semester') ? 'none' : 'block';
-        btn.innerText = (mode === 'semester') ? "⬇ Excel (Rekap Semester)" : "⬇ Excel (Laporan Bulanan)";
+        
+        // Ubah teks tombol sesuai mode
+        btn.innerText = (mode === 'semester') ? "⬇ Spreadsheet (Semester)" : "⬇ Spreadsheet (Bulanan)";
+        
         renderRekap(); renderLog();
     }
 
@@ -463,7 +467,7 @@
         renderLog(); renderRekap(); updateDashboard();
     }
 
-    // --- CSV EXPORT FIX (EXCEL FRIENDLY) ---
+    // --- CSV EXPORT FIX (SPREADSHEET FRIENDLY) ---
     window.downloadCSV = function() {
         const mode = document.getElementById('filter-mode').value;
         const bulan = document.getElementById('filter-bulan').value;
