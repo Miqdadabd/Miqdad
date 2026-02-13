@@ -145,17 +145,24 @@
          <div class="card">
             <h3 style="margin-top:0;">Rekapitulasi Data</h3>
             
+            <div style="margin-bottom: 10px;">
+                <label>Filter Nama Siswa:</label>
+                <select id="filter-nama" onchange="renderRekap(); renderLog();" style="border: 1px solid var(--accent);">
+                    <option value="">-- Tampilkan Semua Siswa --</option>
+                </select>
+            </div>
+
             <div style="display:flex; gap:10px; margin-bottom:15px; background:var(--bg-input); padding:10px; border-radius:8px;">
                 <div style="flex:1;">
-                    <label>Tipe Laporan:</label>
+                    <label>Mode:</label>
                     <select id="filter-mode" onchange="toggleFilterMode()">
-                        <option value="bulan">🗓️ Per Bulan</option>
-                        <option value="semester">📚 Total Semester (Raport)</option>
+                        <option value="bulan">🗓️ Bulanan</option>
+                        <option value="semester">📚 Semester</option>
                     </select>
                 </div>
                 <div style="flex:1;" id="div-filter-bulan">
-                    <label>Pilih Bulan:</label>
-                    <input type="month" id="filter-bulan" onchange="renderRekap()">
+                    <label>Bulan:</label>
+                    <input type="month" id="filter-bulan" onchange="renderRekap(); renderLog();">
                 </div>
             </div>
 
@@ -175,13 +182,14 @@
                 </table>
             </div>
             <div style="margin-top:15px; text-align:right;">
-                <button class="btn btn-success" style="width:auto; font-size:0.8em;" onclick="downloadCSV()">⬇ Excel (Rekap Semester)</button>
+                <button class="btn btn-success" style="width:auto; font-size:0.8em;" onclick="downloadCSV()">⬇ Excel (Rekap)</button>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0;">Log Data Masuk</h3>
-            <div style="overflow-x:auto; max-height: 250px;">
+            <h3 style="margin-top:0;">Log & Rincian Kasus</h3>
+            <p style="font-size: 0.7em; color: var(--text-muted); margin-bottom: 10px;">Detail Absensi & Kasus akan muncul di sini sesuai filter.</p>
+            <div style="overflow-x:auto; max-height: 350px;">
                 <table class="recap-table" id="log-table"></table>
             </div>
         </div>
@@ -262,13 +270,13 @@
         const todayAbsen = absen.filter(x => x.date === today);
         const todayKasus = kasus.filter(x => x.date === today);
 
-        // Update Angka Statistik (Hanya Hari Ini)
+        // Update Angka Statistik
         document.getElementById('today-sakit').innerText = todayAbsen.filter(x => x.type === 'S').length;
         document.getElementById('today-izin').innerText = todayAbsen.filter(x => x.type === 'I').length;
         document.getElementById('today-alpha').innerText = todayAbsen.filter(x => x.type === 'A').length;
         document.getElementById('today-kasus').innerText = todayKasus.length;
 
-        // Tampilkan List Siapa Saja yang Absen Hari Ini
+        // Tampilkan List
         const listDiv = document.getElementById('today-summary');
         
         if(todayAbsen.length === 0 && todayKasus.length === 0) {
@@ -358,10 +366,19 @@
     }
 
     function renderDropdown() {
+        // Dropdown untuk Input Kasus
         const sel = document.getElementById('kasus-nama');
-        if(!sel) return;
-        sel.innerHTML = '<option value="">-- Pilih Siswa --</option>';
-        siswaList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+        if(sel) {
+            sel.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+            siswaList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+        }
+
+        // Dropdown untuk Filter Laporan (Fitur Baru)
+        const selFilter = document.getElementById('filter-nama');
+        if(selFilter) {
+            selFilter.innerHTML = '<option value="">-- Tampilkan Semua Siswa --</option>';
+            siswaList.sort().forEach(s => selFilter.innerHTML += `<option value="${s}">${s}</option>`);
+        }
     }
 
     window.simpanKasus = function() {
@@ -388,25 +405,27 @@
         const divBulan = document.getElementById('div-filter-bulan');
         const btn = document.querySelector('#view-laporan .btn-success');
         
-        if(mode === 'semester') {
-            divBulan.style.display = 'none';
-            btn.innerText = "⬇ Excel (Rekap Semester)";
-        } else {
-            divBulan.style.display = 'block';
-            btn.innerText = "⬇ Excel (Laporan Bulanan)";
-        }
+        divBulan.style.display = (mode === 'semester') ? 'none' : 'block';
+        btn.innerText = (mode === 'semester') ? "⬇ Excel (Rekap Semester)" : "⬇ Excel (Laporan Bulanan)";
+        
         renderRekap();
+        renderLog();
     }
 
     window.renderRekap = function() {
         const mode = document.getElementById('filter-mode').value;
         const bulan = document.getElementById('filter-bulan').value;
+        const selectedName = document.getElementById('filter-nama').value; // Ambil filter nama
+
         const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
         const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
         const tbody = document.getElementById('rekap-body');
         tbody.innerHTML = '';
 
         siswaList.sort().forEach((nama, idx) => {
+            // Jika ada filter nama, dan nama ini tidak cocok, skip
+            if(selectedName && nama !== selectedName) return;
+
             let myAbsen = absen.filter(x => x.name === nama);
             let myKasus = kasus.filter(x => x.name === nama);
 
@@ -440,18 +459,47 @@
     function renderLog() {
         const absen = JSON.parse(localStorage.getItem('db_absen')) || [];
         const kasus = JSON.parse(localStorage.getItem('db_kasus')) || [];
+        const selectedName = document.getElementById('filter-nama').value;
+        const mode = document.getElementById('filter-mode').value;
+        const bulan = document.getElementById('filter-bulan').value;
+
+        // Gabung Data
         let all = [...absen, ...kasus].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        // Filter Sesuai Nama (Jika Dipilih)
+        if (selectedName) {
+            all = all.filter(x => x.name === selectedName);
+        }
+
+        // Filter Bulan (Jika Mode Bulan)
+        if(mode === 'bulan') {
+            all = all.filter(x => x.date.startsWith(bulan));
+        }
+
         const table = document.getElementById('log-table');
         table.innerHTML = '';
+
+        if(all.length === 0) {
+            table.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px; color:#666;">Tidak ada data sesuai filter.</td></tr>';
+            return;
+        }
+
         all.forEach(x => {
             let label = x.type === 'KASUS' ? '⚠️' : x.type;
             let extra = x.deadline ? `<br><small style="color:var(--info)">Target: ${x.deadline}</small>` : '';
+            
+            // Tampilkan Detail Keterangan (Penting buat Kasus)
+            let detailKet = x.desc ? x.desc : (x.cat ? x.cat : '-');
+            
             table.innerHTML += `
             <tr>
-                <td style="width:70px; font-size:0.7em; color:#888;">${x.date}</td>
-                <td>${x.name}<br><span style="font-size:0.7em; color:#aaa;">${x.desc}</span>${extra}</td>
-                <td style="text-align:right; font-weight:bold;">${label}</td>
-                <td style="width:30px; text-align:center;"><span onclick="delItem(${x.id}, '${x.type}')" style="color:red; cursor:pointer;">×</span></td>
+                <td style="width:75px; font-size:0.7em; color:#888; vertical-align:top;">${x.date}</td>
+                <td style="vertical-align:top;">
+                    <span style="font-weight:bold; font-size:0.9em;">${x.name}</span><br>
+                    <span style="font-size:0.8em; color:#bbb;">Ket: ${detailKet}</span>${extra}
+                </td>
+                <td style="text-align:right; font-weight:bold; vertical-align:top;">${label}</td>
+                <td style="width:30px; text-align:center; vertical-align:top;"><span onclick="delItem(${x.id}, '${x.type}')" style="color:red; cursor:pointer;">×</span></td>
             </tr>`;
         });
     }
@@ -547,7 +595,10 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
         if(id === 'home') updateDashboard();
-        if(id === 'laporan') renderRekap();
+        if(id === 'laporan') {
+            renderRekap();
+            renderLog(); // Panggil renderLog juga agar tabel bawah update
+        }
     }
 </script>
 </body>
