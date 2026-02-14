@@ -1,37 +1,47 @@
-
-const CACHE_NAME = "jurnal-v10-emas-fix";
-const assets = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./logo-192.png",
-  "./logo-512.png"
+const CACHE_NAME = 'digital-ally-v1';
+const urlsToCache = [
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
-// Install & Cache
-self.addEventListener("install", (event) => {
+// Install Service Worker
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(assets);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 
-// Activate & Cleanup Cache Lama
-self.addEventListener("activate", (event) => {
+// Cache and return requests
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Cache hit - return response
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
+});
+
+// Update Service Worker
+self.addEventListener('activate', event => {
+  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
       );
     })
   );
 });
-
-// Fetch dari Cache
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((res) => res || fetch(event.request))
-  );
-});
-
