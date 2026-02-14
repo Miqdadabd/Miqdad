@@ -1,4 +1,5 @@
-const CACHE_NAME = "jurnal-v7-emas-final";
+
+const CACHE_NAME = "jurnal-v10-emas-fix";
 const assets = [
   "./",
   "./index.html",
@@ -7,7 +8,7 @@ const assets = [
   "./logo-512.png"
 ];
 
-// Proses Install & Simpan ke Cache
+// Install & Cache
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,7 +17,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Hapus Cache Lama agar Ikon Baru Muncul
+// Activate & Cleanup Cache Lama
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -27,12 +28,10 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Ambil data dari Cache
+// Fetch dari Cache
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request).then((res) => res || fetch(event.request))
   );
 });
 
